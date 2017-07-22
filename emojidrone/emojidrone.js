@@ -1,5 +1,5 @@
 /*
-    DroneKey
+    Emojidrone
     Copyright (C) 2017  Ross Brackett
 
     This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 */
 
 
-var chord="C7";
+var chord="Am";
 var iconSize=[];
 var chordNotes=[];
 var sound=[];
@@ -29,6 +29,10 @@ var wiggle=2;
 var endOpacity=1;
 var shrinkRandomness=500;
 var migrate=true;
+var stereo=true;
+var fx=false;
+var params={};location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(s,k,v){params[k]=v});
+
 
 var embiggen=function(kNum){//key has been pressed, make it big.
 
@@ -97,6 +101,16 @@ var launchIntoFullscreen = function(element) {
 };
 
 
+
+	  
+
+
+
+
+
+
+
+
 var noteValue={
 	"A"  :0,
 	"A#" :1,
@@ -117,30 +131,58 @@ var noteValue={
 	"Ab" :11	
 };
 
+var loadInstrument = function(){
+ var chordNotes=findChordNotes(chord);	 
+ console.log(chord);  
+		var k=0;
+		for (i=0;i<10;i++){ //bank
+			for (j=0;j<4;j++){ //slot
+					 var offset = noteValue[audioFiles[i].note];
+					var rate;
+					if (i<6){ //left side of the keyboard is lower octaves, generally
+						 rate =     Math.pow(2,(1+(((chordNotes[j]-offset)-12)/12)))/2;
+					 }else{ rate = Math.pow(2,(1+(((chordNotes[j]-offset)+12)/12)))/2;}
+			
+				if(sound[k]){sound[k].unload()};	
+				if(stereo){
+					sound[k] = new Howl({
+						src: ['samples/'+ audioFiles[i].filename],
+						stereo: -0.5+(i*0.1),
+						volume:0.6,
+						rate:rate
+					});
+				}else{
+					sound[k] = new Howl({
+						src: ['samples/'+ audioFiles[i].filename],
+						volume:0.6,
+						rate:rate
+					});
+				}
+			k++;
+			}	
+		}
+}	
 
 
 	$( document ).ready(function() { //let's do this!
-    console.log( "ready!" );
-	
-	for (i=0;i<10;i++){ //load all the samples
-			 sound[i] = new Howl({
-	      src: ['samples/'+ audioFiles[i].filename],
-	      volume:0.6
-	    });
-	  }
-	
+		   console.log( "ready!" );
+		   
+	  //let's load some instruments!
+	  loadInstrument();
+	 
+if (fx){
 	tuna = new Tuna(Howler.ctx) //prepare reverb
 	var delay = new tuna.Delay({
 	    feedback: 0.6,    //0 to 1+
-	    delayTime: 130,    //1 to 10000 milliseconds
+	    delayTime: 300,    //1 to 10000 milliseconds
 	    wetLevel: 0.5,    //0 to 1+
 	    dryLevel: 1,       //0 to 1+
 	    cutoff: 2000,      //cutoff frequency of the built in lowpass-filter. 20 to 22050
 	    bypass: 0
 	});
-	//Howler.addEffect(delay) //uncomment this for delay effects
-    
-    chordNotes=findChordNotes(chord);
+	Howler.addEffect(delay) //uncomment this for delay effects
+}    
+
 	
 	
     var theGrid='<div style="height: 100vh; background-color:' + bgColor +  ' ;">'; //load up the grid of random emojis
@@ -157,31 +199,46 @@ var noteValue={
        i++;
        }
     }
+     
+     
+     if (!params["chord"]){  
+     theGrid = theGrid + '<div class="arbitrary" id="mainmenu"><span style="font-size:10vh;">Emojidrone</span><br>';
+     theGrid = theGrid +'<br><b>Chord name:</b> <input type="text" style="width:7vw" id="chordname" value="Am"> <button id="playbutton">Go!</button><br><span style="font-size:2vh;"><i>start typing!</i></span>';
      theGrid = theGrid +'</div>';
+   } 
+     
+     
+     theGrid = theGrid +'</div>';
+
+   
      $(document.body).html(theGrid); //render the emoji html
     
   	$(document).on('keydown', function(event) {//key is pressed
      actualKey = (event.which);
     
      if (keyMap[actualKey]>-1){
-
-			launchIntoFullscreen(document.documentElement); // the whole page
+			
 			embiggen(keyMap[actualKey]);
-			
-			var bank = Math.floor((keyMap[actualKey])/4);
-			var slot = ((keyMap[actualKey])%4);
-			
-			var offset = noteValue[audioFiles[bank].note];
-			var rate;
-			if (bank<6){ //left side of the keyboard is lower octaves, generally
-				rate =     Math.pow(2,(1+(((chordNotes[slot]-offset)-12)/12)))/2;
-			}else{rate = Math.pow(2,(1+(((chordNotes[slot]-offset)+12)/12)))/2;}
-			
-			sound[bank].rate(rate);
-			sound[bank].play();
-			
+			sound[keyMap[actualKey]].play();
+		console.log(	keyMap[actualKey]);
 		}
 	});
+	
+	  $("#playbutton").click(function(event) {
+     chord=$("#chordname").val();
+     loadInstrument();
+     	     $("#mainmenu").css("visibility", "hidden");
+     launchIntoFullscreen(document.documentElement); // the whole page
+    	
+    });
 	  
+	$( window ).resize(function() {
+	  var fullscreenElement = document.fullScreen ||  document.mozFullScreen || document.webkitIsFullScreen;;
+	  if (!fullscreenElement){
+	     $("#mainmenu").css("visibility", "visible");
+	  }
+	   
+	}); 
+	 
  
 });
