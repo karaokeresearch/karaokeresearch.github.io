@@ -6,7 +6,6 @@
    		<script src="howler.core.js"></script>
    		<script src="howler.spatial.min.js"></script>
       <script src="tuna.js"></script>
-      <script src="svgs.js"></script>
       <script src="keymap.js"></script>
 			<script src="teoria.js"></script>
   	  <script src="soundfont.js"></script>
@@ -65,8 +64,11 @@
 	
 	<div id ="gridzone" style="height: 100vh;"></div>
 	<div class="arbitrary" id="mainmenu"><span style="font-size:10vh;">Emojidrone</span><br>
+		<span style="font-size:2vh;"><i>start typing!</i></span>
+		<br>
 		<br><b>Chord name:</b> <input type="text" style="width:7vw" id="chordname" value="Am">
-		<button id="playbutton">Go!</button><br>
+		<button id="playbutton">Go!</button>
+<br>
 		<select id="emojitype">
 	 	  <option>All emojis (except symbols)</option>
 	 	  <option>Activities</option>
@@ -87,9 +89,14 @@
 	 	  <option>White</option>
 		</select>
 		
-<span style="font-size:2vh;">
-	
-		<i>start typing!</i></span>
+		<select id="emojiset">
+	 	  <option>twemoji</option>
+	 	  <option>noto</option>
+	 	  <option>noto-classic</option>
+	 	  <option>fxemoji</option>
+		</select>
+		<BR>
+		<span style="font-size:1vh;"><a target= "_blank" href="https://github.com/karaokeresearch/Emojidrone"><i>source and instructions</i></a></span>
 	</div>
 
 </body>
